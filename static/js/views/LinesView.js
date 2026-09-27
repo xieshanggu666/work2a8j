@@ -18,8 +18,13 @@ window.LinesView = {
           <div class="item-main">
             <strong>{{ l.code }}</strong> {{ l.name }}
             <span class="chip">杆塔 {{ l.tower_count }}</span>
+            <span class="chip" :class="l.risk_level">{{ riskZh(l.risk_level) }}</span>
           </div>
-          <div class="item-sub">{{ l.voltage_kv }}kV · {{ l.total_km }}km · {{ {in_service:'运行',maintenance:'检修'}[l.status] }}</div>
+          <div class="item-sub">
+            {{ l.voltage_kv }}kV · {{ l.total_km }}km · {{ {in_service:'运行',maintenance:'检修'}[l.status] }}
+            <template v-if="l.open_defects"> · 未闭环缺陷 {{ l.open_defects }}</template>
+            <template v-if="l.overdue_defects"> · <span class="overdue-text">超时 {{ l.overdue_defects }}</span></template>
+          </div>
         </div>
       </div>
       <div class="detail-panel" v-if="sel">

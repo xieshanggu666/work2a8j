@@ -17,10 +17,10 @@ from ..models import (
     BatteryPack,
     Mission,
     InspectionImage,
-    RepairTicket,
     FlightRecord,
 )
 from ..core.config import SAFE_SOC
+from . import ticket_flow
 
 AVG_SPEED_KPH = 36.0
 
@@ -165,17 +165,20 @@ class InspectionPlanner:
                 labeled=0,
             ))
 
-        # 缺陷工单（简化演示：传入缺陷集合）
+        # 缺陷工单（简化演示：传入缺陷集合；按等级 SLA 写入闭环时限并回写杆塔风险）
         for def_ in (defects or []):
-            self.db.add(RepairTicket(
-                code=f"WO-{mission.id}-{def_.get('seq', 1):02d}",
+            t = ticket_flow.make_ticket(
                 mission_id=mission.id,
+                seq=def_.get("seq", 1),
                 tower_id=def_.get("tower_id"),
                 title=def_.get("title", "巡检缺陷"),
                 level=def_.get("level", "minor"),
-                status="open",
                 detail=def_.get("detail", ""),
-            ))
+            )
+            self.db.add(t)
+            self.db.flush()
+            if t.tower_id:
+                ticket_flow.sync_tower_risk(self.db, t.tower_id)
 
         mission.status = "completed"
         return {"flight_km": mission.plan_km, "images": len(mission.route or []),

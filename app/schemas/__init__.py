@@ -11,6 +11,9 @@ class LineOut(BaseModel):
     total_km: float
     status: str
     tower_count: int = 0
+    open_defects: int = 0       # 未闭环缺陷工单数
+    overdue_defects: int = 0    # 超时未闭环工单数
+    risk_level: str = "normal"  # 综合风险：normal/suspect/key
 
     class Config:
         from_attributes = True
@@ -85,6 +88,7 @@ class MissionDetail(MissionOut):
     route: Optional[List[Dict[str, Any]]] = None
     images_count: int = 0
     tickets_count: int = 0
+    ticket_stats: Dict[str, int] = {}   # 工单状态分布（含 overdue 超时数）
 
 
 class MissionCreate(BaseModel):
@@ -120,11 +124,35 @@ class TicketOut(BaseModel):
     level: str
     status: str
     detail: str
-    created_at: Any = None
+    assignee: Optional[str] = None
+    assigned_at: Any = None
+    due_at: Any = None
+    resolution: str = ""
     resolved_at: Any = None
+    reviewer: Optional[str] = None
+    closed_at: Any = None
+    return_reason: str = ""
+    return_count: int = 0
+    sla_hours: int = 0      # 该等级的闭环时限
+    overdue: bool = False   # 是否已超时未闭环
+    created_at: Any = None
 
     class Config:
         from_attributes = True
+
+
+class TicketAssign(BaseModel):
+    assignee: str                    # 处理人
+
+
+class TicketSubmit(BaseModel):
+    resolution: str = ""             # 处理结果说明
+
+
+class TicketReview(BaseModel):
+    approve: bool                    # True 通过闭环 / False 退回
+    reviewer: str = ""               # 复核人
+    reason: str = ""                 # 退回原因（退回时必填）
 
 
 class ExecuteRequest(BaseModel):

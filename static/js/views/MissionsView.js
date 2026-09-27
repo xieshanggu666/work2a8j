@@ -109,6 +109,17 @@ window.MissionsView = {
         <div class="kv-row"><span>分配无人机</span><b>{{ sel.drone_code || '未分配(电量不足)' }}</b></div>
         <div class="kv-row"><span>分配电池</span><b>{{ sel.battery_code || '—' }}</b></div>
         <div class="kv-row"><span>缺陷工单</span><b>{{ sel.tickets_count }}</b></div>
+        <div class="kv-row" v-if="sel.tickets_count">
+          <span>工单闭环</span>
+          <b class="tk-flow">
+            <span class="chip open" v-if="sel.ticket_stats.open">待处理 {{ sel.ticket_stats.open }}</span>
+            <span class="chip processing" v-if="sel.ticket_stats.processing">处理中 {{ sel.ticket_stats.processing }}</span>
+            <span class="chip resolved" v-if="sel.ticket_stats.resolved">待复核 {{ sel.ticket_stats.resolved }}</span>
+            <span class="chip returned" v-if="sel.ticket_stats.returned">已退回 {{ sel.ticket_stats.returned }}</span>
+            <span class="chip closed" v-if="sel.ticket_stats.closed">已关闭 {{ sel.ticket_stats.closed }}</span>
+            <span class="chip overdue" v-if="sel.ticket_stats.overdue">超时 {{ sel.ticket_stats.overdue }}</span>
+          </b>
+        </div>
         <div class="kv-row"><span>优先级</span><b>{{ prZh(sel.priority) }}</b></div>
         <div v-if="sel.status==='planned'" class="form-actions">
           <button class="btn primary" @click="execute(sel.id)">执行巡检</button>

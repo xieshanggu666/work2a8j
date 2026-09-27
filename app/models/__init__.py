@@ -108,7 +108,7 @@ class InspectionImage(Base):
 
 
 class RepairTicket(Base):
-    """缺陷隐患工单"""
+    """缺陷隐患工单（闭环状态流：open→processing→resolved→closed，可退回 returned）"""
     __tablename__ = "repair_tickets"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -117,10 +117,18 @@ class RepairTicket(Base):
     tower_id = Column(Integer, nullable=True)
     title = Column(String(64), nullable=False)
     level = Column(String(16), nullable=False, default="minor")  # minor/major/critical
-    status = Column(String(16), nullable=False, default="open")  # open/processing/resolved/closed
+    status = Column(String(16), nullable=False, default="open")  # open/processing/resolved/returned/closed
     detail = Column(Text, nullable=False, default="")
+    assignee = Column(String(32), nullable=True)          # 处理人
+    assigned_at = Column(DateTime, nullable=True)         # 派单时间
+    due_at = Column(DateTime, nullable=True)              # 闭环时限（按等级 SLA）
+    resolution = Column(Text, nullable=False, default="")     # 处理结果说明
+    resolved_at = Column(DateTime, nullable=True)         # 提交复核时间
+    reviewer = Column(String(32), nullable=True)          # 复核人
+    closed_at = Column(DateTime, nullable=True)           # 复核通过时间
+    return_reason = Column(Text, nullable=False, default="")  # 最近退回原因
+    return_count = Column(Integer, nullable=False, default=0)  # 退回次数
     created_at = Column(DateTime, server_default=func.now())
-    resolved_at = Column(DateTime, nullable=True)
 
     mission = relationship("Mission", back_populates="tickets")
 

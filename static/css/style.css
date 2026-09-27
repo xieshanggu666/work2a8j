@@ -77,6 +77,11 @@ label { display: block; font-size: 12px; color: var(--dim); }
 .chip.lv.major { color: var(--warn); border-color: rgba(255,179,0,.5); }
 .chip.lv.critical { color: var(--danger); border-color: rgba(239,83,80,.6); }
 .chip.open { color: var(--danger); } .chip.resolved { color: var(--warn); } .chip.closed { color: var(--ok); }
+.chip.processing { color: var(--warn); border-color: rgba(255,179,0,.4); }
+.chip.returned { color: #ff8a65; border-color: rgba(255,138,101,.5); }
+.chip.overdue { color: var(--danger); border-color: rgba(239,83,80,.6); }
+.chip.key { color: var(--danger); border-color: rgba(239,83,80,.5); }
+.chip.suspect { color: var(--warn); border-color: rgba(255,179,0,.4); }
 .chip.idle, .chip.ready { color: var(--ok); border-color: rgba(61,201,139,.4); }
 .chip.charging { color: var(--warn); }
 
@@ -105,9 +110,17 @@ label { display: block; font-size: 12px; color: var(--dim); }
 .wp i { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; border-radius: 50%; background: var(--primary); color: #04151c; font-size: 10px; font-weight: 700; }
 
 /* 工单 */
-.ticket { display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+.ticket { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
 .ticket.critical { border-left: 4px solid var(--danger); }
 .ticket.major { border-left: 4px solid var(--warn); }
 .ticket.minor { border-left: 4px solid var(--info); }
+.ticket.overdue { border-color: rgba(239,83,80,.5); }
 .tk-left { display: flex; gap: 8px; align-items: center; flex: 1; }
 .tk-mid { flex: 2; } .tk-right { display: flex; gap: 8px; align-items: center; }
+.tk-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.tk-meta { display: flex; gap: 14px; flex-wrap: wrap; color: var(--dim); font-size: 12px; margin-top: 4px; }
+.tk-act { flex-basis: 100%; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 10px; }
+.tk-act label { min-width: 200px; }
+.tk-act .form-actions { margin-top: 0; }
+.tk-flow { display: flex; gap: 6px; flex-wrap: wrap; }
+.overdue-text { color: var(--danger); }

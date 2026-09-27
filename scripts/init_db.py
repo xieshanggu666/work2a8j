@@ -5,12 +5,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.core.database import Base, engine, SessionLocal
+from app.core.database import Base, engine, SessionLocal, ensure_schema
 from app.models import Line, Tower, Drone, BatteryPack
 
 
 def main():
     Base.metadata.create_all(bind=engine)
+    ensure_schema()  # 旧库补齐工单闭环新列
     db = SessionLocal()
     try:
         if db.query(Line).first():

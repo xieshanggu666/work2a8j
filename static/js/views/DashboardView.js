@@ -19,8 +19,11 @@ window.DashboardView = {
       <div class="card" @click="$emit('nav','fleet')"><div class="k">无人机</div><div class="v">{{ ov.drones }}</div><div class="hint">机队规模</div></div>
       <div class="card" @click="$emit('nav','missions')"><div class="k">任务</div><div class="v">{{ ov.missions }}</div><div class="hint">巡检任务总数</div></div>
       <div class="card" @click="$emit('nav','missions')"><div class="k">已完成</div><div class="v ok">{{ ov.completed }}</div><div class="hint">闭环任务</div></div>
-      <div class="card" @click="$emit('nav','tickets')"><div class="k">待处理缺陷</div><div class="v warn">{{ ov.open_tickets }}</div><div class="hint">未关闭工单</div></div>
-      <div class="card" @click="$emit('nav','tickets')"><div class="k">重大缺陷</div><div class="v danger">{{ ov.critical }}</div><div class="hint">critical 级</div></div>
+      <div class="card" @click="$emit('nav','tickets')"><div class="k">未闭环缺陷</div><div class="v warn">{{ ov.open_tickets }}</div><div class="hint">待处理+处理中+待复核</div></div>
+      <div class="card" @click="$emit('nav','tickets')"><div class="k">处理中</div><div class="v">{{ ov.processing_tickets }}</div><div class="hint">已派单工单</div></div>
+      <div class="card" @click="$emit('nav','tickets')"><div class="k">待复核</div><div class="v">{{ ov.pending_review }}</div><div class="hint">等待复核闭环</div></div>
+      <div class="card" @click="$emit('nav','tickets')"><div class="k">超时工单</div><div class="v danger">{{ ov.overdue_tickets }}</div><div class="hint">超出 SLA 时限</div></div>
+      <div class="card" @click="$emit('nav','tickets')"><div class="k">重大缺陷</div><div class="v danger">{{ ov.critical }}</div><div class="hint">critical 级未闭环</div></div>
       <div class="card"><div class="k">飞行记录</div><div class="v">{{ ov.flights }}</div><div class="hint">合规放行航次</div></div>
     </div>
   </div>`,
