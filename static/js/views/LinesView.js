@@ -6,6 +6,7 @@ window.LinesView = {
     async load() { try { this.lines = await Api.get("/api/lines"); } catch (e) { this.error = e.message; } },
     async select(l) { this.sel = await Api.get(`/api/lines/${l.id}`); },
     riskZh(r) { return { normal: "正常", suspect: "可疑", key: "重点" }[r] || r; },
+    lineRiskZh(r) { return zhRisk[r] || r; },
     newMission(l) { this.$emit("nav", "missions"); },
   },
   template: `
@@ -18,6 +19,8 @@ window.LinesView = {
           <div class="item-main">
             <strong>{{ l.code }}</strong> {{ l.name }}
             <span class="chip">杆塔 {{ l.tower_count }}</span>
+            <span class="chip risk" :class="l.risk_level">{{ lineRiskZh(l.risk_level) }}</span>
+            <span v-if="l.open_ticket_count" class="chip open">未闭环 {{ l.open_ticket_count }}</span>
           </div>
           <div class="item-sub">{{ l.voltage_kv }}kV · {{ l.total_km }}km · {{ {in_service:'运行',maintenance:'检修'}[l.status] }}</div>
         </div>

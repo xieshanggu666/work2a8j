@@ -16,6 +16,9 @@ class Line(Base):
     voltage_kv = Column(Integer, nullable=False, default=110)      # 电压等级
     total_km = Column(Float, nullable=False, default=0.0)         # 线路总长 km
     status = Column(String(16), nullable=False, default="in_service")  # in_service/maintenance
+    # 缺陷工单回写的线路风险统计
+    risk_level = Column(String(16), nullable=False, default="normal")  # normal/suspect/key
+    open_ticket_count = Column(Integer, nullable=False, default=0)     # 未闭环工单数
 
     towers = relationship("Tower", back_populates="line", cascade="all, delete-orphan")
     missions = relationship("Mission", back_populates="line", cascade="all, delete-orphan")
@@ -80,6 +83,7 @@ class Mission(Base):
     priority = Column(String(16), nullable=False, default="normal")  # high/normal/low
     status = Column(String(16), nullable=False, default="planned")  # planned/in_progress/completed/canceled
     route = Column(JSON, nullable=True)            # 规划航线点列表 [{lat,lng,seq}]
+    open_ticket_count = Column(Integer, nullable=False, default=0)  # 工单回写：未闭环工单数
     created_at = Column(DateTime, server_default=func.now())
     completed_at = Column(DateTime, nullable=True)
 
@@ -108,7 +112,7 @@ class InspectionImage(Base):
 
 
 class RepairTicket(Base):
-    """缺陷隐患工单"""
+    """缺陷隐患工单（闭环状态流：open→processing→resolved→closed，支持复核退回与超时）"""
     __tablename__ = "repair_tickets"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -119,10 +123,37 @@ class RepairTicket(Base):
     level = Column(String(16), nullable=False, default="minor")  # minor/major/critical
     status = Column(String(16), nullable=False, default="open")  # open/processing/resolved/closed
     detail = Column(Text, nullable=False, default="")
+    # 处理人 / 时限
+    assignee = Column(String(32), nullable=True)        # 处理人
+    assigned_at = Column(DateTime, nullable=True)       # 派单时间
+    due_at = Column(DateTime, nullable=True)            # 处理时限（超时判定基准）
+    # 处理与复核
+    resolve_note = Column(Text, nullable=False, default="")   # 处理说明
+    resolved_at = Column(DateTime, nullable=True)       # 提交处理时间
+    reviewer = Column(String(32), nullable=True)        # 复核人
+    reviewed_at = Column(DateTime, nullable=True)       # 复核时间
+    closed_at = Column(DateTime, nullable=True)         # 关闭时间
+    reject_reason = Column(Text, nullable=False, default="")  # 最近退回原因
+    reject_count = Column(Integer, nullable=False, default=0)  # 被退回次数
     created_at = Column(DateTime, server_default=func.now())
-    resolved_at = Column(DateTime, nullable=True)
 
     mission = relationship("Mission", back_populates="tickets")
+    events = relationship("TicketEvent", back_populates="ticket",
+                          cascade="all, delete-orphan", order_by="TicketEvent.id")
+
+
+class TicketEvent(Base):
+    """工单流转事件（创建/派单/提交/复核通过/复核退回）"""
+    __tablename__ = "ticket_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_id = Column(Integer, ForeignKey("repair_tickets.id"), nullable=False)
+    action = Column(String(16), nullable=False)   # create/assign/submit/approve/reject
+    actor = Column(String(32), nullable=False, default="系统")
+    note = Column(Text, nullable=False, default="")
+    created_at = Column(DateTime, server_default=func.now())
+
+    ticket = relationship("RepairTicket", back_populates="events")
 
 
 class FlightRecord(Base):

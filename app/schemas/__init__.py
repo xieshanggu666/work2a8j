@@ -10,6 +10,8 @@ class LineOut(BaseModel):
     voltage_kv: int
     total_km: float
     status: str
+    risk_level: str = "normal"
+    open_ticket_count: int = 0
     tower_count: int = 0
 
     class Config:
@@ -74,6 +76,7 @@ class MissionOut(BaseModel):
     battery_code: Optional[str] = None
     priority: str
     status: str
+    open_ticket_count: int = 0
     created_at: Any = None
     completed_at: Any = None
 
@@ -85,6 +88,7 @@ class MissionDetail(MissionOut):
     route: Optional[List[Dict[str, Any]]] = None
     images_count: int = 0
     tickets_count: int = 0
+    overdue_ticket_count: int = 0
 
 
 class MissionCreate(BaseModel):
@@ -115,16 +119,59 @@ class TicketOut(BaseModel):
     id: int
     code: str
     mission_id: int
+    mission_code: Optional[str] = None
     tower_id: Optional[int]
     title: str
     level: str
     status: str
     detail: str
-    created_at: Any = None
+    assignee: Optional[str] = None
+    assigned_at: Any = None
+    due_at: Any = None
+    resolve_note: str = ""
     resolved_at: Any = None
+    reviewer: Optional[str] = None
+    reviewed_at: Any = None
+    closed_at: Any = None
+    reject_reason: str = ""
+    reject_count: int = 0
+    overdue: bool = False
+    created_at: Any = None
 
     class Config:
         from_attributes = True
+
+
+class TicketEventOut(BaseModel):
+    id: int
+    action: str
+    actor: str
+    note: str
+    created_at: Any = None
+
+    class Config:
+        from_attributes = True
+
+
+class TicketDetail(TicketOut):
+    events: List[TicketEventOut] = []
+
+
+class TicketAssignIn(BaseModel):
+    assignee: str
+    due_hours: Optional[float] = None   # 不传则按缺陷等级默认时限
+    actor: Optional[str] = None
+
+
+class TicketSubmitIn(BaseModel):
+    note: str = ""
+    actor: Optional[str] = None
+
+
+class TicketReviewIn(BaseModel):
+    reviewer: str
+    approve: bool = True
+    reason: str = ""                    # 退回时必填
 
 
 class ExecuteRequest(BaseModel):
